@@ -4,10 +4,10 @@
 
 from sqlalchemy import Column, String, Integer
 
-from infra.schemas.sqlalchemy.EntityMeta import EntityMeta
+from infra.schemas.sqlalchemy.BaseModel import BaseModel
 
 
-class PlotModel(EntityMeta):
+class PlotModel(BaseModel):
     """
     PlotModel is the SQLAlchemy ORM model for the Plot entity. This class
     is responsible for mapping Plot entity to database model.
