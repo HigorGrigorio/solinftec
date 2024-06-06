@@ -1,15 +1,17 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+from functools import lru_cache
+
 from fastapi import Depends
 from olympus.domain import Guid
 from olympus.domain.events import trigger
 from sqlalchemy.orm import Session
 
 from config.database import get_db_connection
+from infra.schemas.sqlalchemy import PlotModel
 from modules.plot.domain import Plot
 from modules.plot.infra.sqlalchemy.mappers.AlchemyPlotMapper import AlchemyPlotMapper
-from modules.plot.infra.sqlalchemy.models import PlotModel
 from modules.plot.repos import IPlotRepo
 
 
@@ -39,3 +41,9 @@ class PlotRepo(IPlotRepo):
         if model is None:
             return None
         return AlchemyPlotMapper.to_domain(model)
+
+    @classmethod
+    @lru_cache
+    def instance(cls, session: Session | None = None) -> 'PlotRepo':
+        session = session or get_db_connection()
+        return PlotRepo(session)

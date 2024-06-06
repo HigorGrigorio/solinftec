@@ -3,11 +3,11 @@
 # -----------------------------------------------------------------------------
 
 from .CreatePieceDTO import CreatePieceDTO
-from .CreatePieceError import RelatedNotFoundError
+from .CreatePieceError import RelatedPlotNotFoundError
 from .CreatePieceUseCase import CreatePieceUseCase
 
 __all__ = [
     'CreatePieceDTO',
-    'RelatedNotFoundError',
+    'RelatedPlotNotFoundError',
     'CreatePieceUseCase'
 ]

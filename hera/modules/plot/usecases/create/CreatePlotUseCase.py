@@ -1,11 +1,11 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
-
-from uuid import uuid4
+from datetime import datetime
+from functools import lru_cache
 
 from fastapi import Depends
-from olympus.domain import IUseCase
+from olympus.domain import IUseCase, Guid
 from olympus.monads import (Either, Result, Maybe)
 from shared.logic import UnexpectedError
 
@@ -50,6 +50,9 @@ class CreatePlotUseCase(IUseCase[CreatePlotDTO, Response]):
             with open(f'{self.dto.path}/{plot.file.get_name()}.{self.dto.extension}', 'wb') as f:
                 f.write(self.dto.buffer)
 
+                # clear buffer
+                self.dto.buffer = None
+
             return Result.ok(plot)
         except Exception as e:
             return Result.fail(e)
@@ -57,17 +60,16 @@ class CreatePlotUseCase(IUseCase[CreatePlotDTO, Response]):
     def execute(self, dto: CreatePlotDTO) -> Response:
         self.dto = dto
 
-        name = str(uuid4())
-
-        def _make_plot(file: File) -> Result[Plot]:
-            return
+        name = Guid.new().value
 
         plot = File.new(name, dto.path, dto.extension) \
             .bind(lambda f: Plot.new({
-                'file': f,
-                'description': dto.description,
-                'pieces': Maybe.nothing(),
-            })) \
+            'file': f,
+            'description': dto.description,
+            'pieces': Maybe.nothing(),
+            'created_at': str(datetime.now().timestamp()),
+            'updated_at': str(datetime.now().timestamp())
+        })) \
             .bind(self._store_local_plot) \
             .bind(self._store_plot)
 
@@ -75,3 +77,10 @@ class CreatePlotUseCase(IUseCase[CreatePlotDTO, Response]):
             return Either.left(UnexpectedError(plot.err()))
 
         return Either.right(str(plot.value.id))
+
+    @classmethod
+    @lru_cache
+    def instance(cls):
+        return cls(
+            repo=PlotRepo.instance()
+        )

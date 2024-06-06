@@ -10,3 +10,11 @@ class PlotNotProcessedError(UnexpectedError):
 
     def __str__(self) -> str:
         return f'PlotNotProcessedError: {self.error}'
+
+
+class PlotNotFoundError(UnexpectedError):
+    def __init__(self, id: str) -> None:
+        super().__init__(f'Plot not found: {id}')
+
+    def __str__(self) -> str:
+        return f'PlotNotFoundError: {self.error}'

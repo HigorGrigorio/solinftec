@@ -38,7 +38,12 @@ class Controller(abc.ABC):
         self.request = request
         self.response = response
 
-        return await self.do_execute()
+        result = await self.do_execute()
+
+        # set the response code
+        response.status_code = result['code']
+
+        return result
 
     @abc.abstractmethod
     async def do_execute(self) -> ControllerResponse:

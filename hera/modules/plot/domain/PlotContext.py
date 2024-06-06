@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 import abc
 from abc import ABC
-from typing import TypeVar, TypedDict, NotRequired
+from typing import TypeVar, TypedDict, Optional
 
 from olympus.monads import Result, Maybe
 
@@ -36,8 +36,8 @@ class PlotProps(TypedDict):
     description: str
     pieces: Maybe[Pieces]
 
-    created_at: NotRequired[str]
-    updated_at: NotRequired[str]
+    created_at: Optional[str]
+    updated_at: Optional[str]
 
 
 class BasePlotState(State, abc.ABC):

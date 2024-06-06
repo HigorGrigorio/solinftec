@@ -19,6 +19,19 @@ class CropPlotModel(TypedDict):
 
 
 class IAresService(abc.ABC):
+    """
+    IAresService is the interface for AresService
+    """
+
     @abc.abstractmethod
     def crop(self, plot: CropPlotModel) -> None:
+        """
+        Crop the plot
+
+        ----------
+        Parameters
+        ----------
+        plot : CropPlotModel
+            The plot to be processed
+        """
         ...

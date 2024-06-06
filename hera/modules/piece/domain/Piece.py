@@ -6,6 +6,7 @@ from olympus.domain import Guid
 from olympus.monads import Maybe, guard_all, W, Result
 
 from .PieceContext import PieceContext, PieceProps, BasePieceState
+from ...core.domain import File
 
 
 class Piece(PieceContext):
@@ -100,6 +101,9 @@ class Piece(PieceContext):
             The result of operation
         """
         return self.state.mark_as_queued().bind(lambda: self)
+
+    def get_file(self) -> File:
+        return self.props['file']
 
     @classmethod
     def new(

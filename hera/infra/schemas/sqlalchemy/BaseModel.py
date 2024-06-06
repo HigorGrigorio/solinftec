@@ -13,7 +13,7 @@ class BaseModel(EntityMeta):
     Base Model Schema
 
     This class is responsible for mapping the common attributes of all entities
-    to database model.
+    to database piece.
     """
     __abstract__ = True
     __table_args__ = {'extend_existing': True}

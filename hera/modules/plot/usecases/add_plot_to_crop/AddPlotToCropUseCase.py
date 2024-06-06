@@ -8,10 +8,11 @@ from shared.logic import UnexpectedError
 
 from modules.plot.services.contracts import IAresService
 from .AddPlotToCropDTO import AddPlotToCropDTO
+from .AddPlotToCropError import PlotNotFoundError
 from ...domain import Plot
-from ...repos.plot import IPlotRepo
+from ...repos import IPlotRepo
 
-Response = Either[UnexpectedError, None]
+Response = Either[UnexpectedError | PlotNotFoundError, None]
 
 
 class AddPlotToCropUseCase(IUseCase[AddPlotToCropDTO, Response]):
@@ -25,8 +26,12 @@ class AddPlotToCropUseCase(IUseCase[AddPlotToCropDTO, Response]):
         id = Guid(self.dto.id)
         return Result.ok(self.repo.get(id))
 
-    def _notify_ares(self, plot: Plot) -> Result[Plot]:
+    def _notify_ares(self, plot: Plot) -> Result[Plot] | PlotNotFoundError:
         try:
+
+            if plot is None:
+                return PlotNotFoundError(self.dto.id)
+
             self.ares.crop({
                 'id': plot.id.value,
                 'path': plot.file.get_location(),
@@ -44,4 +49,4 @@ class AddPlotToCropUseCase(IUseCase[AddPlotToCropDTO, Response]):
         if result.is_ok:
             return right(result.value)
 
-        return left(UnexpectedError(result.value))
+        return left(result)

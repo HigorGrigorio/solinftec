@@ -1,4 +1,7 @@
 # -----------------------------------------------------------------------------
+# (C) 2024 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 
@@ -18,13 +21,13 @@ def make_stu(
         state: BasePieceState = Queued()
 ) -> Result[Piece]:
     return Piece.new(
-        props={'file': file},
+        props={'file': file, 'plot_id': Maybe.nothing()},
         state=Maybe.just(state)
     )
 
 
-class PieceTests(unittest.TestCase):
-    def test_create_a_piece_with_valid_props(self):
+class TestPiece(unittest.TestCase):
+    def test_if_should_be_able_create_a_piece_with_valid_props(self):
         # Arrange
         stu = make_stu().unwrap()
 
@@ -32,7 +35,7 @@ class PieceTests(unittest.TestCase):
         self.assertIsInstance(stu, Piece)
         self.assertIsInstance(stu.state, Queued)
 
-    def test_create_a_piece_with_invalid_props(self):
+    def test_if_should_be_able_create_a_piece_with_invalid_props(self):
         # Arrange
         stu = make_stu(file=None)
 
@@ -40,11 +43,12 @@ class PieceTests(unittest.TestCase):
         self.assertTrue(stu.is_err)
 
     def _test_transitions(self, machine: Piece, transitions: list):
+        # a recursive helper function to test transitions
+
         if not transitions:
             return Result.ok(machine)
 
-        transition = transitions.pop(0)
-        method = getattr(machine, f'mark_as_{transition}')
+        method = getattr(machine, f'mark_as_{transitions.pop(0)}')
 
         return method() \
             .bind(lambda m: self._test_transitions(m, transitions))
@@ -57,9 +61,13 @@ class PieceTests(unittest.TestCase):
         self._test_transitions(make_stu().unwrap(), ['segmented', 'skeletonized', 'restored', 'finished', 'failed'])
 
     def _test_invalid_transition_error(self, machine: Piece, transitions: list):
+        # a helper function to test invalid transitions
+
         states = ['queued', 'segmented', 'skeletonized', 'restored', 'finished']
 
         for transition in states:
+
+            # skip valid transitions
             if transition in transitions:
                 continue
 
@@ -76,6 +84,8 @@ class PieceTests(unittest.TestCase):
         self._test_invalid_transition_error(make_stu(state=Finished()).unwrap(), ['finished'])
 
     def _test_already_in_state(self, machine: Piece):
+        # a helper function to test already in state error
+
         method = getattr(machine, f'mark_as_{machine.state.__state__}')
         result = method()
         self.assertIsInstance(result, Result)
@@ -87,3 +97,7 @@ class PieceTests(unittest.TestCase):
         self._test_already_in_state(make_stu(state=Skeletonized()).unwrap())
         self._test_already_in_state(make_stu(state=Restored()).unwrap())
         self._test_already_in_state(make_stu(state=Finished()).unwrap())
+
+
+if __name__ == '__main__':
+    unittest.main()

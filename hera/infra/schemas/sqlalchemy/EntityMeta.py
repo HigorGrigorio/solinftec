@@ -15,7 +15,7 @@ EntityMeta = declarative_base()
 
 
 def init():
-    if not database_exists(Engine):
-        create_database(Engine)
+    if not database_exists(Engine.url):
+        create_database(Engine.url)
 
     EntityMeta.metadata.create_all(bind=Engine)

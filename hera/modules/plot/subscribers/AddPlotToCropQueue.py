@@ -18,10 +18,13 @@ class AddPlotToCrop(EventHandler):
         self.service = service
 
     def setup(self):
-        bind(PlotCreated, self.on_state_changed)
+        bind(PlotCreated, self.after_plot_created)
 
-    def on_state_changed(self, event: PlotCreated):
+    def after_plot_created(self, event: PlotCreated):
         self.logger \
             .log(10, msg=f'Plot {event.plot.id} added to crop queue')
 
-
+        self.service.crop({
+            'id': event.plot.id.value,
+            'path': event.plot.file.get_location(),
+        })

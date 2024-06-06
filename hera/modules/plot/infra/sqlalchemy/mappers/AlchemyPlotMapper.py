@@ -1,17 +1,19 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+from datetime import datetime
 from typing import Type
 
 from olympus.domain import Guid
+from olympus.monads import Maybe
 from olympus.monads.maybe import just
 
+from infra.schemas.sqlalchemy import PlotModel
 from modules.plot.domain import (
     Plot,
     File,
     BasePlotState,
 )
-from modules.plot.infra.sqlalchemy.models import PlotModel
 
 
 class AlchemyPlotMapper:
@@ -46,14 +48,54 @@ class AlchemyPlotMapper:
         return state
 
     @staticmethod
+    def _str_to_datetime(value: str):
+        """
+        Convert a string to a datetime
+
+        ----------
+        Parameters
+        ----------
+        value: str
+            The string value
+
+        Returns
+        -------
+        Maybe
+            The datetime or nothing
+        """
+        try:
+            return datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _datetime_to_str(value: datetime) -> str:
+        """
+        Convert a datetime to a string
+
+        ----------
+        Parameters
+        ----------
+        value: datetime
+            The datetime value
+
+        Returns
+        -------
+        str
+            The string value
+        """
+        return value.isoformat()
+
+    @staticmethod
     def to_domain(model: Type[PlotModel]) -> Plot:
         return Plot(
             AlchemyPlotMapper._map_plot_state(model.state),
             {
                 'file': File.new(model.name, model.path, model.extension).unwrap(),
                 'description': model.description,
-                'created_at': model.created_at,
-                'updated_at': model.updated_at,
+                'created_at': AlchemyPlotMapper._datetime_to_str(model.created_at),
+                'updated_at': AlchemyPlotMapper._datetime_to_str(model.updated_at),
+                'pieces': Maybe.nothing(),  # TODO: use lazy loading
             }, just(Guid(model.id))
         )
 
@@ -64,8 +106,8 @@ class AlchemyPlotMapper:
             name=plot.file.get_name(),
             extension=plot.file.get_extension(),
             path=plot.file.get_path(),
-            state=plot.state.to_string(),
+            state=plot.state.__state__,
             description=plot.description,
-            created_at=plot.created_at,
-            updated_at=plot.updated_at,
+            created_at=AlchemyPlotMapper._str_to_datetime(plot.created_at),
+            updated_at=AlchemyPlotMapper._str_to_datetime(plot.updated_at),
         )

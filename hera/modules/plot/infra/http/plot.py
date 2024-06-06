@@ -12,8 +12,14 @@ PlotRouter = APIRouter(prefix='/plot')
 # -----------------------------------------------------------------------------
 # Stores a plot
 # -----------------------------------------------------------------------------
-@PlotRouter.post('/')
-async def store(request: Request, response: Response, ctrl: CreatePlotController = Depends()):
+@PlotRouter.post(
+    '/',
+)
+async def store(
+        request: Request,
+        response: Response,
+        ctrl: CreatePlotController = Depends(CreatePlotController)
+):
     return await ctrl.execute(request, response)
 
 

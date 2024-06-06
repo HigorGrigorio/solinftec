@@ -25,4 +25,4 @@ class InMemoryPlotRepo(IPlotRepo):
         return plot
 
     def get(self, plot_id):
-        return next((p for p in self._plots if p.id == plot_id), None)
+        return next((p for p in self._plots if p.id.value == plot_id.value), None)

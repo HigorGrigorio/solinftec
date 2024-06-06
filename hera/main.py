@@ -8,7 +8,10 @@ from config.subscribers import setup_subscribers
 from infra.http.routes.v1 import V1Router
 from infra.schemas.sqlalchemy import init
 
-setup_subscribers()
+setup_subscribers([
+    'plot',
+    'piece',
+])
 
 app = FastAPI()
 

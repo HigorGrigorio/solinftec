@@ -2,15 +2,16 @@
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Enum
+from sqlalchemy.orm import relationship
 
 from .BaseModel import BaseModel
 
 
 class PlotModel(BaseModel):
     """
-    PlotModel is the SQLAlchemy ORM model for the Plot entity. This class
-    is responsible for mapping Plot entity to database model.
+    PlotModel is the SQLAlchemy ORM piece for the Plot entity. This class
+    is responsible for mapping Plot entity to database piece.
 
     -----------
     Attributes
@@ -36,4 +37,14 @@ class PlotModel(BaseModel):
     extension = Column(String, nullable=False)
     path = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    state = Column(String, nullable=False)
+
+    state = Column(Enum('canceled', 'cropped', 'failed', 'finished', 'queued', 'rescaled', 'restored', 'segmented',
+                        'skeletonized', name='plot_state'), nullable=False)
+    """
+    The state of the plot
+    """
+
+    pieces = relationship('PieceModel', lazy='joined', back_populates='plot')
+    """
+    The plot pieces
+    """

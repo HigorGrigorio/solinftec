@@ -7,6 +7,7 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings
 
+
 @lru_cache
 def get_env_filename():
     runtime_env = os.getenv("ENV")

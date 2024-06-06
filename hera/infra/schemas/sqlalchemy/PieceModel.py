@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 
 import sqlalchemy
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from .BaseModel import BaseModel
 from .PlotModel import PlotModel
@@ -35,4 +35,13 @@ class PieceModel(BaseModel):
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     path = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     plot_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey(PlotModel.id), nullable=False)
-    plot = relationship(PlotModel, backref=backref('pieces', lazy='joined'))
+    extension = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+
+    plot = relationship('PlotModel', back_populates='pieces')
+
+    state = sqlalchemy.Column(
+        sqlalchemy.Enum('failed', 'finished', 'queued', 'restored', 'segmented', 'skeletonized',
+                        name='piece_state'),
+    )
+
+

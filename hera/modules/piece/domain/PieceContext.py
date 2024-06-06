@@ -2,9 +2,10 @@
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 import abc
-from typing import TypedDict
+from typing import TypedDict, Optional
 
-from olympus.monads import Result
+from olympus.domain import Guid
+from olympus.monads import Result, Maybe
 
 from modules.core.domain import Context, File, State
 
@@ -20,6 +21,10 @@ class PieceProps(TypedDict):
         The file of the piece
     """
     file: File
+    plot_id: Maybe[Guid]
+
+    created_at: Optional[str]
+    updated_at: Optional[str]
 
 
 class BasePieceState(State, abc.ABC):

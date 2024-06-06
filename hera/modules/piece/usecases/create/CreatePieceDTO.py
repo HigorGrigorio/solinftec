@@ -17,10 +17,10 @@ class CreatePieceDTO(BaseModel):
         The piece filename
     extension : str
         The piece file extension
-    plot : str
+    plot_id : str
         The plot identifier that originated the pieceping
     """
     path: str
     name: str
     extension: str
-    plot: str
+    plot_id: str
