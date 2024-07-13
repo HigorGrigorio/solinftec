@@ -4,6 +4,6 @@
 
 from unittest.mock import Mock
 
-from modules.piece.domain import Piece
+from modules.piece.domain import Crop
 
-PieceMock = Mock(spec=Piece)
+PieceMock = Mock(spec=Crop)

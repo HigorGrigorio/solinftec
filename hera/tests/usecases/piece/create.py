@@ -7,9 +7,9 @@ from olympus.monads import Maybe
 
 from modules.core.domain import File
 from modules.core.domain.File import FileProps
-from modules.piece.repos.inmemory import InMemoryPieceRepo
+from modules.piece.repos.inmemory import InMemoryCropRepo
 from modules.piece.usecases import create
-from modules.plot.domain import Pieces
+from modules.plot.domain import Crops
 from modules.plot.repos.inmemory import InMemoryPlotRepo
 
 
@@ -27,7 +27,7 @@ def make_fake_plot():
     return Plot(Queued(), PlotProps(
         file=file,
         description='',
-        pieces=Pieces([]),
+        pieces=Crops([]),
 
     ), Maybe.nothing())
 
@@ -39,16 +39,16 @@ class TestCreatePieceUseCase(unittest.TestCase):
         plot_repo = InMemoryPlotRepo()
         plot_repo.create(fake_plot)
 
-        piece_repo = InMemoryPieceRepo()
+        piece_repo = InMemoryCropRepo()
 
         # the use case executor
-        executor = create.CreatePieceUseCase(
+        executor = create.CreateCropUseCase(
             plot_repo,
             piece_repo,
         )
 
         # the use case data transfer object
-        dto = create.CreatePieceDTO(
+        dto = create.CreateCropDTO(
             path='/path/to/file',
             name='file',
             extension='ext',
@@ -69,16 +69,16 @@ class TestCreatePieceUseCase(unittest.TestCase):
         # creates a fake empty plot repository
         plot_repo = InMemoryPlotRepo()
 
-        piece_repo = InMemoryPieceRepo()
+        piece_repo = InMemoryCropRepo()
 
         # the use case executor
-        executor = create.CreatePieceUseCase(
+        executor = create.CreateCropUseCase(
             plot_repo,
             piece_repo,
         )
 
         # the use case data transfer object
-        dto = create.CreatePieceDTO(
+        dto = create.CreateCropDTO(
             path='/path/to/file',
             name='file',
             extension='ext',

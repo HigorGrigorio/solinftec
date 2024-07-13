@@ -66,7 +66,7 @@ class CreatePlotUseCase(IUseCase[CreatePlotDTO, Response]):
             .bind(lambda f: Plot.new({
             'file': f,
             'description': dto.description,
-            'pieces': Maybe.nothing(),
+            'crops': Maybe.nothing(),
             'created_at': str(datetime.now().timestamp()),
             'updated_at': str(datetime.now().timestamp())
         })) \

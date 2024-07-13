@@ -8,7 +8,7 @@ from typing import TypeVar, TypedDict, Optional
 from olympus.monads import Result, Maybe
 
 from modules.core.domain import Context, File, State
-from modules.plot.domain import Pieces
+from modules.plot.domain import Crops
 
 P = TypeVar('P')
 
@@ -34,7 +34,7 @@ class PlotProps(TypedDict):
 
     file: File
     description: str
-    pieces: Maybe[Pieces]
+    crops: Maybe[Crops]
 
     created_at: Optional[str]
     updated_at: Optional[str]
@@ -42,11 +42,11 @@ class PlotProps(TypedDict):
 
 class BasePlotState(State, abc.ABC):
     """
-    This is an abstract base class that represents a piece of a plot in a state machine context.
+    This is an abstract base class that represents a crop of a plot in a state machine context.
     It provides three abstract methods that must be implemented by any concrete subclass:
-    - crop: to crop the piece
-    - restore: to restore the piece to its original state
-    - rescale: to rescale the piece
+    - crop: to crop the crop
+    - restore: to restore the crop to its original state
+    - rescale: to rescale the crop
 
     Each of these methods should return a Result object containing an instance of BasePlotState.
     """
@@ -59,7 +59,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_queued(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as queued.
+        Abstract method to mark the crop as queued.
         This method must be implemented by any concrete subclass.
 
         Returns:
@@ -69,7 +69,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_cropped(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as cropped.
+        Abstract method to mark the crop as cropped.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -82,7 +82,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_segmented(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as segmented.
+        Abstract method to mark the crop as segmented.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -95,7 +95,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_skeletonized(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as skeleton.
+        Abstract method to mark the crop as skeleton.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -108,7 +108,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_restored(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as restored.
+        Abstract method to mark the crop as restored.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -121,7 +121,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_rescaled(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as rescaled.
+        Abstract method to mark the crop as rescaled.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -134,7 +134,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_finished(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as finished.
+        Abstract method to mark the crop as finished.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -147,7 +147,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_canceled(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as cancelled.
+        Abstract method to mark the crop as cancelled.
         This method must be implemented by any concrete subclass.
 
         -------
@@ -162,7 +162,7 @@ class BasePlotState(State, abc.ABC):
 
     def mark_as_failed(self) -> Result['BasePlotState']:
         """
-        Abstract method to mark the piece as failed.
+        Abstract method to mark the crop as failed.
         This method must be implemented by any concrete subclass.
 
         -------

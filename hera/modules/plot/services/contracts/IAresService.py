@@ -2,7 +2,7 @@
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 import abc
-from typing import TypedDict
+from typing import TypedDict, Awaitable
 
 
 class CropPlotModel(TypedDict):
@@ -24,7 +24,7 @@ class IAresService(abc.ABC):
     """
 
     @abc.abstractmethod
-    def crop(self, plot: CropPlotModel) -> None:
+    async def crop(self, plot: CropPlotModel) -> Awaitable[None]:
         """
         Crop the plot
 

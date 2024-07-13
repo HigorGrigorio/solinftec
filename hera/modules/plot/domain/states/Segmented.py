@@ -9,7 +9,7 @@ from modules.plot.domain import BasePlotState
 
 class Segmented(BasePlotState):
     """
-    A piece in the segmented state is a piece that was previously skeletonized,
+    A crop in the segmented state is a crop that was previously skeletonized,
     but was segmented again.
     """
 
@@ -17,7 +17,7 @@ class Segmented(BasePlotState):
 
     def mark_as_skeletonized(self) -> Result['BasePlotState']:
         """
-        Returns a failure because a piece can't be skeletonized after segmented.
+        Returns a failure because a crop can't be skeletonized after segmented.
 
         -------
         Returns
@@ -31,7 +31,7 @@ class Segmented(BasePlotState):
 
     def mark_as_segmented(self) -> Result['BasePlotState']:
         """
-        Returns a failure because a piece already in segmented state.
+        Returns a failure because a crop already in segmented state.
 
         -------
         Returns

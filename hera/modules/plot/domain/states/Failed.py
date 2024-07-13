@@ -5,7 +5,7 @@ from olympus.monads import Result
 
 from modules.core.domain.errors import AlreadyInState
 from modules.core.domain.errors.InvalidStateTransition import InvalidStateTransition
-from modules.piece.domain.states import Queued
+from modules.crop.domain.states import Queued
 from modules.plot.domain import BasePlotState
 
 

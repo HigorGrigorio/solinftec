@@ -44,7 +44,7 @@ class PlotModel(BaseModel):
     The state of the plot
     """
 
-    pieces = relationship('PieceModel', lazy='joined', back_populates='plot')
+    crops = relationship('CropModel', lazy='joined', back_populates='plot')
     """
-    The plot pieces
+    The plot crops
     """

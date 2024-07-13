@@ -10,7 +10,7 @@ from infra.schemas.sqlalchemy import init
 
 setup_subscribers([
     'plot',
-    'piece',
+    'crop',
 ])
 
 app = FastAPI()

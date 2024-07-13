@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+
 from logging import Logger
 
 from confluent_kafka import Consumer

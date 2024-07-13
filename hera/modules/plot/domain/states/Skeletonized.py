@@ -10,7 +10,7 @@ from modules.plot.domain import BasePlotState
 
 class Skeletonized(BasePlotState):
     """
-    When the skeleton algorithm is applied to all pieces of the plot, as well as
+    When the skeleton algorithm is applied to all crops of the plot, as well as
     the plot itself.
     """
 

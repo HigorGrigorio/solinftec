@@ -5,12 +5,12 @@
 from .PlotContext import PlotContext, PlotProps, BasePlotState
 from modules.core.domain.File import File
 from .Plot import Plot
-from .Pieces import Pieces
+from .Crops import Crops
 
 __all__ = [
     Plot,
     File,
     PlotContext,
     PlotProps,
-    Pieces
+    Crops
 ]

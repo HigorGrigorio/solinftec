@@ -2,6 +2,8 @@
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 
+import asyncio
+
 from olympus.domain.events import EventHandler, bind
 
 from config.log import get_logger
@@ -24,7 +26,8 @@ class AddPlotToCrop(EventHandler):
         self.logger \
             .log(10, msg=f'Plot {event.plot.id} added to crop queue')
 
-        self.service.crop({
+        # Schedule the coroutine in the existing event loop
+        task = asyncio.create_task(self.service.crop({
             'id': event.plot.id.value,
             'path': event.plot.file.get_location(),
-        })
+        }))

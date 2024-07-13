@@ -11,16 +11,16 @@ from olympus.monads import Maybe, Result
 
 from modules.core.domain import File
 from modules.core.domain.errors import InvalidStateTransition, AlreadyInState
-from modules.piece.domain import Piece, BasePieceState
+from modules.piece.domain import Crop, BaseCropState
 from modules.piece.domain.states import Queued, Segmented, Skeletonized, Restored, Finished
 from tests.mocks import FileMock
 
 
 def make_stu(
         file: File = FileMock(),
-        state: BasePieceState = Queued()
-) -> Result[Piece]:
-    return Piece.new(
+        state: BaseCropState = Queued()
+) -> Result[Crop]:
+    return Crop.new(
         props={'file': file, 'plot_id': Maybe.nothing()},
         state=Maybe.just(state)
     )
@@ -32,7 +32,7 @@ class TestPiece(unittest.TestCase):
         stu = make_stu().unwrap()
 
         # Assert
-        self.assertIsInstance(stu, Piece)
+        self.assertIsInstance(stu, Crop)
         self.assertIsInstance(stu.state, Queued)
 
     def test_if_should_be_able_create_a_piece_with_invalid_props(self):
@@ -42,7 +42,7 @@ class TestPiece(unittest.TestCase):
         # Assert
         self.assertTrue(stu.is_err)
 
-    def _test_transitions(self, machine: Piece, transitions: list):
+    def _test_transitions(self, machine: Crop, transitions: list):
         # a recursive helper function to test transitions
 
         if not transitions:
@@ -60,7 +60,7 @@ class TestPiece(unittest.TestCase):
         self._test_transitions(make_stu().unwrap(), ['segmented', 'skeletonized', 'restored', 'finished'])
         self._test_transitions(make_stu().unwrap(), ['segmented', 'skeletonized', 'restored', 'finished', 'failed'])
 
-    def _test_invalid_transition_error(self, machine: Piece, transitions: list):
+    def _test_invalid_transition_error(self, machine: Crop, transitions: list):
         # a helper function to test invalid transitions
 
         states = ['queued', 'segmented', 'skeletonized', 'restored', 'finished']
@@ -83,7 +83,7 @@ class TestPiece(unittest.TestCase):
         self._test_invalid_transition_error(make_stu(state=Restored()).unwrap(), ['finished', 'restored'])
         self._test_invalid_transition_error(make_stu(state=Finished()).unwrap(), ['finished'])
 
-    def _test_already_in_state(self, machine: Piece):
+    def _test_already_in_state(self, machine: Crop):
         # a helper function to test already in state error
 
         method = getattr(machine, f'mark_as_{machine.state.__state__}')

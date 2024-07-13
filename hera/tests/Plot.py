@@ -9,7 +9,7 @@ from olympus.domain import Guid
 from olympus.monads import Result, Maybe
 
 from modules.core.domain.errors import InvalidStateTransition, AlreadyInState
-from modules.plot.domain import Pieces, PlotProps, BasePlotState
+from modules.plot.domain import Crops, PlotProps, BasePlotState
 from modules.plot.domain.Plot import Plot
 from modules.plot.domain.states import Queued, Cropped, Segmented, Skeletonized, Restored, Rescaled, Finished
 from tests.mocks import FileMock
@@ -18,7 +18,7 @@ from tests.mocks import FileMock
 def make_stu(
         file: FileMock = FileMock(),
         description: str = '',
-        pieces: Pieces = Pieces.new(),
+        pieces: Crops = Crops.new(),
         state: BasePlotState = Queued()
 ) -> Result[Plot]:
     props = PlotProps(

@@ -95,7 +95,7 @@ class AlchemyPlotMapper:
                 'description': model.description,
                 'created_at': AlchemyPlotMapper._datetime_to_str(model.created_at),
                 'updated_at': AlchemyPlotMapper._datetime_to_str(model.updated_at),
-                'pieces': Maybe.nothing(),  # TODO: use lazy loading
+                'crops': Maybe.nothing(),  # TODO: use lazy loading
             }, just(Guid(model.id))
         )
 

@@ -104,7 +104,7 @@ class Plot(PlotContext):
             {
                 'file': 'required',
                 'description': 'between[0, 255]',
-                'pieces': 'required'
+                'crops': 'required'
             }
         )
 
