@@ -20,6 +20,7 @@ import sys
 import json
 from models import TalhaoMessage
 
+
 def initialize_qgis():
     """
     Initializes the QGIS application and sets the necessary environment variables.
@@ -77,13 +78,43 @@ def add_talhao_layer(project: QgsProject, shapefile_path: str, layer_name: str):
         shapefile_path (str): The path to the shapefile.
         layer_name (str): The name of the layer.
     """
-    talhaoLayer = QgsMapLayer(name=layer_name, source=shapefile_path)
+    talhaoLayer = QgsVectorLayer(name=layer_name, source=shapefile_path)
     if not talhaoLayer.isValid():
         print("Failed to load the talhao layer!")
         exit(1)
     else:
         project.addMapLayer(talhaoLayer)
         print("Talhao layer loaded!")
+
+
+def notify_image_exported(producer: Producer, id: str):
+    """
+    Notifies that an image has been exported.
+
+    Args:
+        producer (Producer): The Kafka producer instance.
+        id (str): The ID of the exported image.
+    """
+    producer.produce("hera.image-exported", json.dumps({"id": id}).encode("utf-8"))
+
+
+def notify_image_created(
+    producer: Producer, id: str, image_path: str, coordinates: dict
+):
+    """
+    Notifies that an image has been created.
+
+    Args:
+        producer (Producer): The Kafka producer instance.
+        id (str): The ID of the created image.
+        image_path (str): The path to the created image.
+    """
+    producer.produce(
+        "hera.image-created",
+        json.dumps({"id": id, "path": image_path, "coordinates": coordinates}).encode(
+            "utf-8"
+        ),
+    )
 
 
 def main():
@@ -193,6 +224,13 @@ def main():
                         bbox.yMaximum(),
                     )
 
+                    coordinates = {
+                        "xmin": xmin,
+                        "ymin": ymin,
+                        "xmax": xmax,
+                        "ymax": ymax,
+                    }
+
                     # transformar coordenadas para WGS 84
                     layer_crs = talhaoLayer.crs()
                     geographic_crs = QgsCoordinateReferenceSystem("EPSG:4326")  # WGS 84
@@ -233,11 +271,14 @@ def main():
                         coord_file.write("ymax: {}\n".format(ymax))
 
                     layout.removeLayoutItem(map_item)
+                    notify_image_created(
+                        producer, feature.id(), export_path, coordinates
+                    )
 
                 print("Export completed successfully!")
 
-                qgs.exitQgis()
     finally:
+        qgs.exitQgis()
         consumer.close()
 
 
