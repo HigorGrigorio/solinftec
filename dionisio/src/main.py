@@ -167,6 +167,7 @@ def main():
             else:
                 raw = json.loads(msg.value().decode("utf-8"))
                 message = TalhaoMessage(**raw)
+                id: str = message.id
                 shapefile_path = message.shapeFilePath
                 layer_name = message.layerName
                 output_folder = message.outputFilePath
@@ -271,9 +272,7 @@ def main():
                         coord_file.write("ymax: {}\n".format(ymax))
 
                     layout.removeLayoutItem(map_item)
-                    notify_image_created(
-                        producer, feature.id(), export_path, coordinates
-                    )
+                    notify_image_created(producer, id, export_path, coordinates)
 
                 print("Export completed successfully!")
 
