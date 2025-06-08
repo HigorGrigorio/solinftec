@@ -1,10 +1,10 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+import datetime
 from typing import Type
 
 from olympus.domain import Guid
-from olympus.monads import Maybe
 from olympus.monads.maybe import just
 
 from infra.schemas.sqlalchemy import CropModel
@@ -70,17 +70,25 @@ class AlchemyCropMapper:
             just(Guid(crop.id))
         )
 
-    def to_model(self):
+    @staticmethod
+    def to_model(crop: Crop) -> CropModel:
         """
         Convert to crop
         """
-        file = self.crop.get_file()
+        file = crop.get_file()
+
+        plot_id = crop.get_plot_id().get_or_else(None)
+
+        if plot_id is not None:
+            plot_id = plot_id.value
 
         return CropModel(
-            id=self.crop.id,
+            id=crop.id.value,
             name=file.get_name(),
             path=file.get_path(),
+            plot_id=plot_id,
+            state=crop.state.str(),
             extension=file.get_extension(),
-            created_at=self.crop.created_at,
-            updated_at=self.crop.updated_at
+            created_at=crop.get_created_at().get_or_else(datetime.datetime.now().isoformat()),
+            updated_at=crop.get_updated_at().get_or_else(datetime.datetime.now().isoformat()),
         )

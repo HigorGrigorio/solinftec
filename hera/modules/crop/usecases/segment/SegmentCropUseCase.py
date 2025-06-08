@@ -11,7 +11,7 @@ from .SegmentCropDTO import SegmentCropDTO
 from .SegmentPieceError import CropAlreadySegmented
 from ...domain import Crop
 from ...repos import ICropRepo
-from ...services.contracts.ILaquesisService import ILaquesisService
+from modules.plot.services.contracts.ILaquesisService import ILaquesisService
 
 Response = Either[UnexpectedError | CropNotFound | CropAlreadySegmented, None]
 
@@ -72,7 +72,6 @@ class SegmentCropUseCase(IUseCase[SegmentCropDTO, Response]):
         Result
             Either a Crop or a CropNotFound.
         """
-
         piece_id = self.dto.piece_id
 
         if (crop := self.repo.get(piece_id)) is None:

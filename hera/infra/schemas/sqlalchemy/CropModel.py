@@ -22,7 +22,7 @@ class CropModel(BaseModel):
         Crop name
     path: str
         Crop path
-    plot_id: int
+    plot_id: str
         Crop plot id
     plot: PlotModel
         Crop plot
@@ -31,17 +31,16 @@ class CropModel(BaseModel):
 
     __tablename__ = 'crops'
 
-    id = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
-    name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
-    path = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
-    plot_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey(PlotModel.id), nullable=False)
-    extension = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    id: sqlalchemy.Column = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+    name: sqlalchemy.Column = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    path: sqlalchemy.Column = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    plot_id: sqlalchemy.Column = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey(PlotModel.id),
+                                                   nullable=False)
+    extension: sqlalchemy.Column = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
     plot = relationship('PlotModel', back_populates='crops')
 
-    state = sqlalchemy.Column(
+    state: sqlalchemy.Column = sqlalchemy.Column(
         sqlalchemy.Enum('failed', 'finished', 'queued', 'restored', 'segmented', 'skeletonized',
                         name='piece_state'),
     )
-
-

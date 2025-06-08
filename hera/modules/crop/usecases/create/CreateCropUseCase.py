@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+
 from fastapi import Depends
 from olympus.domain import IUseCase, Guid
 from olympus.monads import Either, Result
@@ -56,11 +57,18 @@ class CreateCropUseCase(IUseCase[CreateCropDTO, Response]):
         Result[File]
             Either a File or a UnexpectedError.
         """
+
+        # split the path into name and extension
+        path, name = dto.path.rsplit('\\', 1)
+
+        # split the name into name and extension
+        name, extension = name.rsplit('.', 1)
+
         return Result.ok(
             File(FileProps(
-                path=dto.path,
-                name=dto.name,
-                extension=dto.extension,
+                path=path,
+                name=name,
+                extension=extension,
             ))
         )
 
@@ -90,6 +98,8 @@ class CreateCropUseCase(IUseCase[CreateCropDTO, Response]):
         return Crop.new({
             'file': file,
             'plot_id': just(plot_id),
+            'created_at': None,
+            'updated_at': None,
         })
 
     def _persist_piece(self, crop: Crop) -> Result[Crop]:

@@ -11,6 +11,7 @@ from shared.infra import ConsumerLoop
 
 from config.kafka import get_consumer
 from config.log import get_logger
+from modules.plot.infra.sqlalchemy.repos import PlotRepo
 from modules.plot.usecases.mark_plot_as_cropped import CropPlotUseCase, CropPlotDTO
 
 
@@ -19,14 +20,16 @@ class AfterPlotCroppedModel(BaseModel):
 
 
 class AfterPlotCropped(ConsumerLoop[AfterPlotCroppedModel]):
-    __topic__ = ['hera.plot-cropped']
+    __topic__ = ['hera.crop-succeeded']
 
     model: AfterPlotCroppedModel
     mark_as_cropped: CropPlotUseCase
 
     def __init__(
             self,
-            usecase: CropPlotUseCase = Depends(CropPlotUseCase),
+            usecase: CropPlotUseCase = CropPlotUseCase(
+                repo=PlotRepo.instance()
+            ),
             consumer: Consumer = get_consumer('after-plot-cropped'),
             logger: Logger = get_logger()
     ) -> None:
@@ -36,5 +39,10 @@ class AfterPlotCropped(ConsumerLoop[AfterPlotCroppedModel]):
     def _map_dto(self):
         return CropPlotDTO(id=self.model.id)
 
+    def _get_model_class(self) -> type[AfterPlotCroppedModel]:
+        return AfterPlotCroppedModel
+
     def handle(self, model: AfterPlotCroppedModel) -> None:
+        self.logger.info(f'Plot {model.id} was cropped.')
+        self.model = model
         self.mark_as_cropped.execute(self._map_dto())

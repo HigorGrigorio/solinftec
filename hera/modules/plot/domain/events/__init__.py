@@ -4,8 +4,10 @@
 
 from .PlotCreated import PlotCreated
 from .PlotStateChanged import PlotStateChanged
+from .PlotCropped import PlotCropped
 
 __all__ = [
     PlotStateChanged,
-    PlotCreated
+    PlotCreated,
+    PlotCropped,
 ]

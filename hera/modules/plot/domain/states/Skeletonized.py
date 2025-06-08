@@ -27,8 +27,7 @@ class Skeletonized(BasePlotState):
              The result of operation.
         """
         from .Restored import Restored
-        self.context.transit_to(Restored())
-        return Result.ok(self)
+        return self.context.transit_to(Restored()).bind(lambda: Result.ok(self))
 
     def mark_as_skeletonized(self) -> 'BasePlotState':
         """

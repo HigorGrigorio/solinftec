@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+from datetime import datetime
 
 from olympus.domain import (
     Guid,
@@ -111,6 +112,12 @@ class Plot(PlotContext):
         if not guarded.is_satisfied():
             return W(guarded)
 
+        if (props['created_at'] is None):
+            props['created_at'] = datetime.now().isoformat()
+
+        if (props['updated_at'] is not None):
+            props['updated_at'] = datetime.now().isoformat()
+
         plot = cls(state.get_or_else(Queued), props, id)
 
         if id.is_nothing():  # is a new plot
@@ -125,7 +132,13 @@ class Plot(PlotContext):
         Returns:
             Result[Plot]: The result of operation.
         """
-        return self.state.mark_as_cropped().bind(lambda: self)
+        from .events import PlotCropped
+
+        old_state = self.state
+
+        return self.state.mark_as_cropped() \
+            .bind(lambda: self.remind(PlotCropped(self, old_state))) \
+            .bind(lambda: self)
 
     def mark_as_failed(self) -> Result['PlotContext']:
         """

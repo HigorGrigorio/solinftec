@@ -26,8 +26,7 @@ class Rescaled(BasePlotState):
              The result of operation.
         """
         from .Finished import Finished
-        self.context.transit_to(Finished())
-        return Result.ok(self)
+        return self.context.transit_to(Finished()).bind(lambda: Result.ok(self))
 
     def mark_as_rescaled(self) -> Result['BasePlotState']:
         """

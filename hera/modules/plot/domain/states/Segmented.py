@@ -26,8 +26,7 @@ class Segmented(BasePlotState):
              The result of operation.
         """
         from .Skeletonized import Skeletonized
-        self.context.transit_to(Skeletonized())
-        return Result.ok(self)
+        return self.context.transit_to(Skeletonized()).bind(lambda: Result.ok(self))
 
     def mark_as_segmented(self) -> Result['BasePlotState']:
         """

@@ -3,7 +3,9 @@
 # -----------------------------------------------------------------------------
 
 from .IAresService import IAresService
+from .ILaquesisService import ILaquesisService
 
 __all__ = [
-    IAresService
+    IAresService,
+    ILaquesisService
 ]

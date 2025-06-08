@@ -13,7 +13,6 @@ from modules.plot.services.contracts import IAresService
 
 
 class AddPlotToCrop(EventHandler):
-
     def __init__(self, service: IAresService = AresService(), logger=get_logger()) -> None:
         super().__init__()
         self.logger = logger

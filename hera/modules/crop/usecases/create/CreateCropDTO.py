@@ -21,6 +21,4 @@ class CreateCropDTO(BaseModel):
         The plot identifier that originated the pieceping
     """
     path: str
-    name: str
-    extension: str
     plot_id: str

@@ -36,5 +36,4 @@ class Queued(BasePlotState):
             Result[State]: The result of operation.
         """
         from .Cropped import Cropped
-        self.context.transit_to(Cropped())
-        return Result.ok(self)
+        return self.context.transit_to(Cropped()).bind(lambda: Result.ok(self))

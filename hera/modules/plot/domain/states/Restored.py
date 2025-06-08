@@ -26,8 +26,7 @@ class Restored(BasePlotState):
              The result of operation.
         """
         from .Rescaled import Rescaled
-        self.context.transit_to(Rescaled())
-        return Result.ok(self)
+        return self.context.transit_to(Rescaled()).bind(lambda: Result.ok(self))
 
     def mark_as_restored(self) -> Result['BasePlotState']:
         """

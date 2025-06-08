@@ -29,9 +29,9 @@ class CropPlotUseCase(IUseCase[CropPlotDTO, Response]):
         id = Guid(self.dto.id)
         return Result.ok(self.repo.get(id))
 
-    def _crop_plot(self, plot: Plot) -> Result[Plot]:
+    def _mark_plot_as_cropped(self, plot: Plot) -> Result[Plot]:
         try:
-            return plot.crop()
+            return plot.mark_as_cropped()
         except Exception as e:
             return Result.fail(e)
 
@@ -46,7 +46,7 @@ class CropPlotUseCase(IUseCase[CropPlotDTO, Response]):
         self.dto = dto
 
         return self._load_plot() \
-            .bind(self._crop_plot) \
+            .bind(self._mark_plot_as_cropped) \
             .bind(self._update_plot) \
             .bind(lambda: right(None)) \
             .if_err(lambda e: left(UnexpectedError(e))) \

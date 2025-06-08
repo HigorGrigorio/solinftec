@@ -36,5 +36,4 @@ class Canceled(BasePlotState):
              The result of operation.
         """
         from .Queued import Queued
-        self.context.transit_to(Queued())
-        return Result.ok(self)
+        return self.context.transit_to(Queued()).bind(lambda: Result.ok(self))

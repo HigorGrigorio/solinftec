@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+
 from abc import ABC
 from typing import TypeVar, Generic
 
@@ -63,6 +64,17 @@ class Context(Generic[P], AggregateRoot[P]):
             """
             from modules.core.domain.errors import InvalidStateTransition
             return Result.fail(InvalidStateTransition(self.context.id, self.__state__, state))
+
+        def str(self) -> str:
+            """
+            Returns the state as a string.
+
+            -------
+            Returns
+            -------
+                str: The state as a string.
+            """
+            return self.__state__
 
     def __init__(self, state: State, props: P, id: Maybe[Guid] = None):
         """
@@ -128,14 +140,16 @@ class Context(Generic[P], AggregateRoot[P]):
 
         if self.state == state:
             print(f'Already in state {state}')
-            return self
+            return Result.fail(UnableTransiteState(state))
 
         print(f'Transiting {self.id} from {self.state.__state__} to {state.__state__}')
 
         self._state = state
         self._state.context = self
 
-    def transit_to(self, state: State) -> 'Context':
+        return Result.ok(self)
+
+    def transit_to(self, state: State) -> 'Result[Context]':
         """
         Transits to a new state.
 

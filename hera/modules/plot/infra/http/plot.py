@@ -12,9 +12,7 @@ PlotRouter = APIRouter(prefix='/plot')
 # -----------------------------------------------------------------------------
 # Stores a plot
 # -----------------------------------------------------------------------------
-@PlotRouter.post(
-    '/',
-)
+@PlotRouter.post('/')
 async def store(
         request: Request,
         response: Response,

@@ -8,6 +8,7 @@ from olympus.domain import Guid
 from olympus.monads import Maybe
 from olympus.monads.maybe import just
 
+import modules.plot.domain.states as states
 from infra.schemas.sqlalchemy import PlotModel
 from modules.plot.domain import (
     Plot,
@@ -35,7 +36,7 @@ class AlchemyPlotMapper:
         """
         cls = None
 
-        for sub in BasePlotState.__subclasses__():
+        for sub in states.__all__:
             if sub.__state__ == state:
                 cls = sub
                 break
@@ -69,7 +70,7 @@ class AlchemyPlotMapper:
             return None
 
     @staticmethod
-    def _datetime_to_str(value: datetime) -> str:
+    def _datetime_to_str(value: datetime) -> str | None:
         """
         Convert a datetime to a string
 
@@ -84,7 +85,7 @@ class AlchemyPlotMapper:
         str
             The string value
         """
-        return value.isoformat()
+        return value.isoformat() if value is not None else None
 
     @staticmethod
     def to_domain(model: Type[PlotModel]) -> Plot:

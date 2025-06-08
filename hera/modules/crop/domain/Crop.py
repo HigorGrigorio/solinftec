@@ -1,9 +1,11 @@
 # -----------------------------------------------------------------------------
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
+from datetime import datetime
 
 from olympus.domain import Guid
 from olympus.monads import Maybe, guard_all, W, Result
+from olympus.monads.maybe import optional
 
 from .CropContext import CropContext, CropProps, BaseCropState
 from ...core.domain import File
@@ -150,5 +152,35 @@ class Crop(CropContext):
 
         if is_new:
             crop.remind(CropCreated(crop))
+            crop.props['created_at'] = crop.get_created_at().get_or_else(datetime.now().isoformat())
+            crop.props['updated_at'] = crop.get_updated_at().get_or_else(datetime.now().isoformat())
 
         return Result.ok(crop)
+
+    def get_plot_id(self) -> Maybe[Guid]:
+        return self.props['plot_id']
+
+    def get_created_at(self) -> Maybe[str]:
+        """
+        Get the created_at date
+
+        -------
+        Returns
+        -------
+        Maybe[str]
+            The created_at date
+        """
+        return optional(self.props['created_at'])
+
+    def get_updated_at(self) -> Maybe[str]:
+        """
+        Get the updated_at date
+
+        -------
+        Returns
+        -------
+        Maybe[str]
+            The updated_at date
+        """
+
+        return optional(self.props['updated_at'])

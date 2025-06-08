@@ -4,7 +4,6 @@ verify_ssl = false
 name = "pip_conf_index_global"
 
 [packages]
-sqlalchemy = "*"
 confluent-kafka = "*"
 numpy = "*"
 pillow = "*"
@@ -14,4 +13,3 @@ pydantic = "*"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.0"

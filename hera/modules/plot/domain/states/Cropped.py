@@ -25,8 +25,8 @@ class Cropped(BasePlotState):
              The result of operation.
         """
         from .Segmented import Segmented
-        self.context.transit_to(Segmented())
-        return Result.ok(self)
+
+        return self.context.transit_to(Segmented()).bind(lambda: Result.ok(self))
 
     def mark_as_cropped(self) -> Result['BasePlotState']:
         """

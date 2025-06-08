@@ -2,6 +2,8 @@
 # (C) 2023 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
 
+from contextlib import contextmanager
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -41,3 +43,15 @@ def get_db_connection():
         yield db
     finally:
         db.close()
+
+
+@contextmanager
+def get_session():
+    # Assuming get_db_connection is a generator that yields a session
+    db_connection_gen = get_db_connection()
+    session = next(db_connection_gen)
+    try:
+        yield session
+    finally:
+        # Ensures the session is closed properly
+        next(db_connection_gen, None)

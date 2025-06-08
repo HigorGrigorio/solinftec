@@ -7,7 +7,7 @@ from olympus.domain import Guid
 from olympus.domain.events import trigger
 from sqlalchemy.orm import Session
 
-from config.database import get_db_connection
+from config.database import get_session
 from infra.schemas.sqlalchemy import CropModel
 from modules.crop.domain import Crop
 from modules.crop.infra.sqlalchemy.mappers.AlchemyCropMapper import AlchemyCropMapper
@@ -51,7 +51,12 @@ class CropRepo(ICropRepo):
         CropRepo
             a new PieceRepo instance
         """
-        return cls(session or get_db_connection())
+        if session is None:
+            with get_session() as session:
+                instance = cls(session)
+        else:
+            instance = cls(session)
+        return instance
 
     def get(self, id: Guid) -> Crop | None:
         """
@@ -84,14 +89,25 @@ class CropRepo(ICropRepo):
         Parameters
         ----------
         crop: Crop
-            the crop to be created
+            The crop to be created
         """
         model = AlchemyCropMapper.to_model(crop)
-        self.session.add(model)
-        self.session.commit()
-        self.session.refresh(model)
+
+        try:
+            # Add the model to the session
+            self.session.add(model)
+            self.session.flush()  # Ensure constraints are checked
+            self.session.commit()
+            self.session.refresh(model)  # Synchronize the state
+        except Exception as e:
+            self.session.rollback()
+
+            raise  # Reraise the exception
+
+        # Trigger events after successful commit
         trigger(crop.get_events())
-        return crop
+
+        return AlchemyCropMapper.to_domain(model)  # Optionally map back to domain
 
     def update(self, crop: Crop) -> Crop:
         """

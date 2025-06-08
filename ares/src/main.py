@@ -1,6 +1,7 @@
 import json
+import os
 import sys
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from multiprocessing import shared_memory
 from pathlib import Path
 
@@ -28,10 +29,17 @@ def notify_crop_created(producer: Producer, id: str, path: Path) -> None:
     producer.produce('hera.crop-created', json.dumps({"parent": id, "path": str(path)}).encode('utf-8'))
 
 
-def notify_plot_cropped(producer: Producer, id: str) -> None:
-    producer.produce('hera.plot-cropped', json.dumps({"id": id}).encode('utf-8'))
+def notify_crop_success(producer: Producer, id: str) -> None:
+    producer.produce('hera.crop-succeeded', json.dumps({"id": id}).encode('utf-8'))
 
 
+def notify_crop_error(producer: Producer, id: str, message: str) -> None:
+    producer.produce('hera.crop-failed', json.dumps({"id": id, "cause": message}).encode('utf-8'))
+
+
+# TODO: I think that allocating a huge matrix in memory every time an
+# image is processed is unnecessary, using a pre-allocated matrix may
+# help to reduce processing time
 def open_shared(path: Path):
     img = Image.open(path)
     img = np.asarray(img)
@@ -46,9 +54,8 @@ def open_shared(path: Path):
     return img, shm
 
 
-def worker(id: str, path: Path, shape, box: Box, shm_name: str, producer: Producer) -> None:
+def worker(id: str, path: Path, shape, box: Box, shm_name: str) -> tuple[str, Path]:
     shm = None
-
     try:
         # open the shared memory
         shm = shared_memory.SharedMemory(name=shm_name)
@@ -63,10 +70,10 @@ def worker(id: str, path: Path, shape, box: Box, shm_name: str, producer: Produc
         # save the image
         save(img, path)
 
-        # notify that the crop was created
-        notify_crop_created(producer, id, path)
+        return id, path
     except Exception as e:
         print(f"Error: {e}")
+        raise e
     finally:
         if shm is not None:
             # close the shared memory
@@ -81,7 +88,8 @@ def chop(path: Path, id: str, producer: Producer, tile: tuple = const.TILE, over
     img, shm = open_shared(path)
 
     width, height = tile
-    output_path = path.parent / '..' / "cropped" / id
+    name = path.name.replace(path.suffix, "")
+    output_path = path.parent / '..' / "cropped" / name
 
     futures = []
 
@@ -90,20 +98,42 @@ def chop(path: Path, id: str, producer: Producer, tile: tuple = const.TILE, over
             box = (x, y, min(x + width, img.shape[1]), min(y + height, img.shape[0]))
 
             # create the path
-            path = output_path / f"{id}_{box[0]}_{box[1]}.png"
+            path = output_path / f"{name}_{box[0]}_{box[1]}.png"
 
             # schedule the worker
-            futures.append(executor.submit(worker, id, path, img.shape, box, shm.name, producer))
+            futures.append(executor.submit(worker, id, path, img.shape, box, shm.name))
 
-    # await all futures
-    for future in futures:
-        future.result()
+    # if it has a future with an exception, clean the output path
+    exception = None
+    results = []
+
+    for future in as_completed(futures):
+        if exception := future.exception():
+            break
+        else:
+            results.append(future.result())
+
+    if exception is not None:
+        # clean the output path
+        output_path.rmtree()
+
+        # notify that the plot failed
+        notify_crop_error(producer, id, str(exception))
+    else:
+        for id, path in results:
+            # notify that the plot was cropped
+            notify_crop_created(producer, id, path)
+
+        # notify that the plot was cropped
+        notify_crop_success(producer, id)
+
+    # send the messages
+    producer.poll(0)
+    producer.flush()
 
     # close the shared memory
     shm.close()
-
-    # notify that the plot was cropped
-    notify_plot_cropped(producer, id)
+    shm.unlink()
 
 
 def main() -> None:
@@ -111,10 +141,10 @@ def main() -> None:
     workers = 20
 
     # kafka configuration
-    consumer_conf = {'bootstrap.servers': 'localhost:19092',
+    consumer_conf = {'bootstrap.servers': os.getenv('KAFKA_BROKER_HOSTNAME', 'localhost:19092'),
                      'auto.offset.reset': 'earliest',
                      'group.id': "ares-group"}
-    producer_conf = {'bootstrap.servers': 'localhost:19092'}
+    producer_conf = {'bootstrap.servers': os.getenv('KAFKA_BROKER_HOSTNAME', 'localhost:19092')}
 
     # consumer topic
     consumer_topic = 'hera.plot-to-crops'
@@ -137,7 +167,8 @@ def main() -> None:
                 # poll for a message
                 msg = consumer.poll(timeout=1.0)
 
-                if msg is None: continue
+                if msg is None:
+                    continue
 
                 # handle Error
                 if msg.error():
@@ -158,10 +189,16 @@ def main() -> None:
                     path = Path(message.path)
                     id: str = message.id
 
-                    chop(path, id, producer, executor=executor)
+                    if path.exists() is False or path.is_file() is False:
+                        producer.produce(
+                            'hera.crop-failed',
+                            json.dumps({
+                                "id": id,
+                                "cause": "The path must be a valid file."
+                            }).encode('utf-8'))
+                        continue
 
-                    # TOPIC: 'hera.plot-cropped'
-                    producer.produce('hera.plot-cropped', json.dumps({"id": message.id}).encode('utf-8'))
+                    chop(path, id, producer, executor=executor)
         finally:
             # close down consumer to commit final offsets.
             consumer.close()
