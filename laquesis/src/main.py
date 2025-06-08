@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -----------------------------------------------------------------------------
 # (C) 2025 Higor Grigorio (higorgrigorio@gmail.com)  (MIT License)
 # -----------------------------------------------------------------------------
@@ -59,40 +60,117 @@ def main():
     consumer = Consumer(consumer_conf)
 
     # the kafka topic producer
+=======
+import json
+import sys
+from confluent_kafka import Consumer, Producer, KafkaError, KafkaException
+import numpy as np
+from ModelTF import Model
+from models import TileMessage
+from pathlib import Path
+from PIL import Image
+
+
+def save(segmented: Image, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    segmented.save(fp=path)
+
+
+def notify_segment_created(producer: Producer, id: str, path: Path) -> None:
+    producer.produce(
+        "hera.segment-created",
+        json.dumps({"parent": id, "path": str(path)}).encode("utf-8"),
+    )
+
+
+def notify_plot_segmented(producer: Producer, id: str) -> None:
+    producer.produce("hera.plot-segmented", json.dumps({"id": id}).encode("utf-8"))
+
+
+def execute(model: Model, id: str, path: Path, producer: Producer) -> None:
+    img = Image.open(path)
+    img = np.asarray(img)
+    segmented = model.predict(img)
+    segmented = Image.fromarray(segmented)
+    save(segmented, path)
+    notify_segment_created(producer, id, path)
+
+
+def main() -> None:
+
+    model = Model("./data/", "model/")
+
+    consumer_conf = {
+        "bootstrap.servers": "localhost:19092",
+        "auto.offset.reset": "earliest",
+        "group.id": "laquesis-group",
+    }
+
+    producer_conf = {"bootstrap.servers": "localhost:19092"}
+
+    consumer_topic = "hera.plot-cropped"
+
+    producer_topic = "hera.plot-segmented"
+
+    consumer = Consumer(consumer_conf)
+
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
     producer = Producer(producer_conf)
 
     running = True
 
     try:
+<<<<<<< HEAD
         # subscribe in the topic to consume
         consumer.subscribe([consumer_topic])
 
         while running:
             # poll for a message
             msg = consumer.poll(timeout=1.0)
+=======
+        consumer.subscribe([consumer_topic])
+
+        while running:
+            msg = consumer.poll(1.0)
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
 
             if msg is None:
                 continue
 
+<<<<<<< HEAD
             # handle Error
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
                     # end of partition event
                     sys.stderr.write('%% %s [%d] reached end at offset %d\n' %
                                      (msg.topic(), msg.partition(), msg.offset()))
+=======
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    sys.stderr.write(
+                        "%% %s [%d] reached end at offset %d\n"
+                        % (msg.topic(), msg.partition(), msg.offset())
+                    )
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
 
             elif msg.error():
                 raise KafkaException(msg.error())
             else:
+<<<<<<< HEAD
                 # handle message
                 raw = json.loads(msg.value().decode('utf-8'))
                 message = models.SegmentationMessage(**raw)
+=======
+                raw = json.loads(msg.value().decode("utf-8"))
+                message = TileMessage(**raw)
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
 
                 print(f"Message: {message}")
 
                 path = Path(message.path)
                 id: str = message.id
 
+<<<<<<< HEAD
                 if path.exists() is False or path.is_file() is False:
                     producer.produce(
                         'hera.segmentation-error',
@@ -140,4 +218,13 @@ def main():
 
 
 if __name__ == '__main__':
+=======
+                execute(model, id, path, producer)
+                notify_plot_segmented(producer, id)
+    finally:
+        consumer.close()
+
+
+if __name__ == "__main__":
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
     main()

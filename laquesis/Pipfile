@@ -4,14 +4,25 @@ verify_ssl = false
 name = "pip_conf_index_global"
 
 [packages]
+<<<<<<< HEAD
 numpy = "*"
 tensorflow = "==2.13.0"
 confluent-kafka = "*"
 pydantic = "*"
 opencv-python = "*"
+=======
+confluent-kafka = "*"
+pydantic = "*"
+numpy = "*"
+tensorflow = "==2.13.0"
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
 
 [dev-packages]
 
 [requires]
 python_version = "3.11"
+<<<<<<< HEAD
 python_full_version = "3.11.0"
+=======
+python_full_version = "3.11"
+>>>>>>> 40a9ea28e2dcabcb9e10d8eff880dd9c2a536e17
